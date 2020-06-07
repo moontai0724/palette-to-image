@@ -7,6 +7,7 @@ function init() {
         el: "#vue-content",
         data: {
             displaySettings: false,
+            displayColors: true,
             displayBorder: true,
             blockWidth: 50,
             blockHeight: 50,
@@ -17,17 +18,17 @@ function init() {
             pickedColor: "",
             lastColor: "",
             selectedColors: [
-                ["#1B1412"],
-                ["#2B1E1D", "#353020", "#424345", "#454917", "#585338", "#5B5C15"],
-                ["#63605F", "#656B47", "#6A766E", "#7B7A3B", "#7C8563", "#95AC74", "#989F93", "#998F70", "#ABABA9", "#ADB88D", "#C1C1C2", "#C7A27D"],
-                ["#CCCEE0", "#CDC485", "#D6D4AE", "#D6DEED", "#ECECED"]
+                ["#424345"],
+                ["#1B1412", "#2B1E1D", "#353020", "#454917", "#5B5C15", "#585338"],
+                ["#7B7A3B", "#656B47", "#63605F", "#6A766E", "#7C8563", "#998F70", "#95AC74", "#989F93", "#ABABA9", "#ADB88D", "#CDC485", "#C7A27D"],
+                ["#CCCEE0", "#C1C1C2", "#D6D4AE", "#D6DEED"]
             ],
             generatedImages: []
         },
         methods: {
             AddColor: function () {
                 if (this.colorFormatError == false) {
-                    this.selectedColors.push(this.pickedColor.split(",").sort().filter(colorHex => !this.selectedColors.flat().includes(colorHex)));
+                    this.selectedColors.push(sortColors(this.pickedColor.split(",").map(hexToRgb)).map(rgbToHex).filter((colorHex, index, arr) => !this.selectedColors.flat().includes(colorHex) && arr.indexOf(colorHex) == index));
                 }
             },
             removeColor: function (colorToRemove) {
@@ -50,6 +51,7 @@ function init() {
                     jQuery("#images").prepend(`<hr class="ui divider">`);
                     jQuery("#images").prepend(canvas);
                 });
+                this.displayColors = false;
             }
         },
         watch: {
@@ -82,4 +84,73 @@ function isColor(colorHex) {
     const s = new Option().style;
     s.color = colorHex;
     return s.color !== '';
+}
+
+function hexToRgb(hex) {
+    hex = hex.substring(1, hex.length);
+    var r = parseInt((hex).substring(0, 2), 16);
+    var g = parseInt((hex).substring(2, 4), 16);
+    var b = parseInt((hex).substring(4, 6), 16);
+
+    return [r, g, b];
+}
+
+function rgbToHex(rgb) {
+    return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
+}
+
+function colorDistance(color1, color2) {
+    // This is actually the square of the distance but
+    // this doesn't matter for sorting.
+    var result = 0;
+    for (var i = 0; i < color1.length; i++)
+        result += (color1[i] - color2[i]) * (color1[i] - color2[i]);
+    return result;
+}
+
+function sortColors(colors) {
+    // Calculate distance between each color
+    var distances = [];
+    for (var i = 0; i < colors.length; i++) {
+        distances[i] = [];
+        for (var j = 0; j < i; j++)
+            distances.push([colors[i], colors[j], colorDistance(colors[i], colors[j])]);
+    }
+    distances.sort(function (a, b) {
+        return a[2] - b[2];
+    });
+
+    // Put each color into separate cluster initially
+    var colorToCluster = {};
+    for (var i = 0; i < colors.length; i++)
+        colorToCluster[colors[i]] = [colors[i]];
+
+    // Merge clusters, starting with lowest distances
+    var lastCluster;
+    for (var i = 0; i < distances.length; i++) {
+        var color1 = distances[i][0];
+        var color2 = distances[i][1];
+        var cluster1 = colorToCluster[color1];
+        var cluster2 = colorToCluster[color2];
+        if (!cluster1 || !cluster2 || cluster1 == cluster2)
+            continue;
+
+        // Make sure color1 is at the end of its cluster and
+        // color2 at the beginning.
+        if (color1 != cluster1[cluster1.length - 1])
+            cluster1.reverse();
+        if (color2 != cluster2[0])
+            cluster2.reverse();
+
+        // Merge cluster2 into cluster1
+        cluster1.push.apply(cluster1, cluster2);
+        delete colorToCluster[color1];
+        delete colorToCluster[color2];
+        colorToCluster[cluster1[0]] = cluster1;
+        colorToCluster[cluster1[cluster1.length - 1]] = cluster1;
+        lastCluster = cluster1;
+    }
+
+    // By now all colors should be in one cluster
+    return lastCluster;
 }

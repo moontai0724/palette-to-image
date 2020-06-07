@@ -26,7 +26,7 @@
         <div id="vue-content">
             <div class="ui center aligned segment">
                 <h1 class="ui header">色碼圖產生器
-                    <div class="sub header">輸入色碼，使用逗號分隔多個色碼，Enter 送出</div>
+                    <div class="sub header">輸入色碼，使用逗號分隔多個色碼，重複色碼不會重複加入，Enter 送出</div>
                 </h1>
 
                 <!-- Select colors -->
@@ -37,7 +37,7 @@
                         <div class="ui button" @click="AddColor">新增</div>
                     </div>
                     <div class="ui teal button" @click="generateImage">產生圖片</div>
-                    <div class="ui red button" @click="clearColor">清空</div>
+                    <div class="ui red button" @click="clearColor">清空選取的顏色</div>
                     <div class="ui button" @click="displaySettings = !displaySettings">設定</div>
                 </div>
             </div>
@@ -96,16 +96,17 @@
 
             <!-- Display colors -->
             <div class="ui center aligned segment">
-                <div class="ui huge header">已選取的顏色
-                    <div class="sub header">透過拖曳的方式排列顏色，雙擊刪除</div>
+                <div class="ui huge header" @click="displayColors = !displayColors;">已選取的顏色
+                    <div class="sub header">透過拖曳的方式排列顏色，雙擊刪除<br>單點標題開合顏色排列區</div>
                 </div>
                 <span class="ui labeled icon button" @click="selectedColors.push([])"><i class="plus icon"></i>新增一列空行</span>
                 <div class="ui segment">
-                    <div id="selected-colors" class="can-overflow" :style="{ 'width': imageWidth + 'px', 'padding': imagePadding + 'px' }">
+                    <div id="selected-colors" class="can-overflow" :style="{ 'width': imageWidth + 'px', 'padding': imagePadding + 'px' }" v-show="displayColors">
                         <draggable :list="colors" v-for="(colors, index) in selectedColors" class="color-group can-overflow" :key="`color-group-${ index }`" :group="{ put: true }" @end="removeEmpty" :class="{ 'display-border': displayBorder }" :style="{ 'min-height': Number(blockHeight) + (blockMargin * 2) + 'px' }">
                             <div class="color" v-for="color in colors" :key="color" :title="color" :style="{ 'background-color': color, 'height': `${ blockHeight }px`, 'width': `${ blockWidth }px`, 'margin': `${ blockMargin }px` }" @dblclick="removeColor(color)"></div>
                         </draggable>
                     </div>
+                    <div v-show="!displayColors">顏色排列區已經隱藏，單點標題開合。</div>
                 </div>
             </div>
 
@@ -113,7 +114,9 @@
                 <h1 class="ui header">已產生的圖片
                     <div class="sub header">右鍵下載</div>
                 </h1>
-                <div id="images" class="can-overflow"></div>
+                <div id="images" class="can-overflow">
+                    <img src="example.png" alt="範例圖片" title="範例圖片">
+                </div>
             </div>
         </div>
     </body>
