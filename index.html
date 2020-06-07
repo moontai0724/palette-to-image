@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Palette to image</title>
+        <!-- jQuery -->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <!-- Semantic-UI -->
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/semantic-ui/dist/semantic.min.css">
+        <script src="//cdn.jsdelivr.net/npm/semantic-ui/dist/semantic.min.js"></script>
+        <!-- Vue.js -->
+        <script src="//cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <!-- CDNJS :: Sortable (https://cdnjs.com/) -->
+        <script src="//cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
+        <!-- CDNJS :: Vue.Draggable (https://cdnjs.com/) -->
+        <script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
+        <!-- html to canvas -->
+        <script src="//html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+        <!-- Custom -->
+        <script src="index.js"></script>
+        <link rel="stylesheet" href="index.css">
+    </head>
+
+    <body>
+        <div id="vue-content">
+            <div class="ui center aligned segment">
+                <h1 class="ui header">色碼圖產生器
+                    <div class="sub header">輸入色碼，使用逗號分隔多個色碼，Enter 送出</div>
+                </h1>
+
+                <!-- Select colors -->
+                <div id="select-color" class="ui form">
+                    <div class="ui fluid labeled action input field" :class="{ error: colorFormatError, shake: colorFormatError }">
+                        <div class="ui label" :style="{ 'background-color': lastColor }" style="border: 0.5px solid gray;">#</div>
+                        <input type="text" placeholder="#FFFFFF,#000000" v-model="pickedColor" v-on:keyup.enter="AddColor">
+                        <div class="ui button" @click="AddColor">新增</div>
+                    </div>
+                    <div class="ui teal button" @click="generateImage">產生圖片</div>
+                    <div class="ui red button" @click="clearColor">清空</div>
+                    <div class="ui button" @click="displaySettings = !displaySettings">設定</div>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="ui segment" v-if="displaySettings">
+                <h1 class="ui center aligned header">設定</h1>
+                <div class="ui form">
+                    <div class="three fields">
+                        <div class="field">
+                            <label>方塊高</label>
+                            <div class="ui right labeled input">
+                                <input type="number" v-model="blockHeight">
+                                <div class="ui basic label">px</div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>方塊寬</label>
+                            <div class="ui right labeled input">
+                                <input type="number" v-model="blockWidth">
+                                <div class="ui basic label">px</div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>方塊間距</label>
+                            <div class="ui right labeled input">
+                                <input type="number" v-model="blockMargin">
+                                <div class="ui basic label">px</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="two fields">
+                        <div class="field">
+                            <label>圖片寬</label>
+                            <div class="ui right labeled input">
+                                <input type="number" v-model="imageWidth">
+                                <div class="ui basic label">px</div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>圖片內距</label>
+                            <div class="ui right labeled input">
+                                <input type="number" v-model="imagePadding">
+                                <div class="ui basic label">px</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="inline field">
+                        <div class="ui toggle checkbox">
+                            <input type="checkbox" v-model="displayBorder">
+                            <label>標示邊線</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Display colors -->
+            <div class="ui center aligned segment">
+                <div class="ui huge header">已選取的顏色
+                    <div class="sub header">透過拖曳的方式排列顏色，雙擊刪除</div>
+                </div>
+                <span class="ui labeled icon button" @click="selectedColors.push([])"><i class="plus icon"></i>新增一列空行</span>
+                <div class="ui segment">
+                    <div id="selected-colors" :style="{ 'width': imageWidth + 'px', 'padding': imagePadding + 'px' }">
+                        <draggable :list="colors" v-for="(colors, index) in selectedColors" class="color-group" :key="`color-group-${ index }`" :group="{ put: true }" @end="removeEmpty" :class="{ 'display-border': displayBorder }" :style="{ 'min-height': Number(blockHeight) + (blockMargin * 2) + 'px' }">
+                            <div class="color" v-for="color in colors" :key="color" :title="color" :style="{ 'background-color': color, 'height': `${ blockHeight }px`, 'width': `${ blockWidth }px`, 'margin': `${ blockMargin }px` }" @dblclick="removeColor(color)"></div>
+                        </draggable>
+                    </div>
+                </div>
+            </div>
+
+            <div id="generated-images" class="ui center aligned segment">
+                <h1 class="ui header">已產生的圖片
+                    <div class="sub header">右鍵下載</div>
+                </h1>
+                <div id="images"></div>
+            </div>
+        </div>
+    </body>
+
+</html>
