@@ -101,8 +101,8 @@
                 </div>
                 <span class="ui labeled icon button" @click="selectedColors.push([])"><i class="plus icon"></i>新增一列空行</span>
                 <div class="ui segment">
-                    <div id="selected-colors" :style="{ 'width': imageWidth + 'px', 'padding': imagePadding + 'px' }">
-                        <draggable :list="colors" v-for="(colors, index) in selectedColors" class="color-group" :key="`color-group-${ index }`" :group="{ put: true }" @end="removeEmpty" :class="{ 'display-border': displayBorder }" :style="{ 'min-height': Number(blockHeight) + (blockMargin * 2) + 'px' }">
+                    <div id="selected-colors" class="can-overflow" :style="{ 'width': imageWidth + 'px', 'padding': imagePadding + 'px' }">
+                        <draggable :list="colors" v-for="(colors, index) in selectedColors" class="color-group can-overflow" :key="`color-group-${ index }`" :group="{ put: true }" @end="removeEmpty" :class="{ 'display-border': displayBorder }" :style="{ 'min-height': Number(blockHeight) + (blockMargin * 2) + 'px' }">
                             <div class="color" v-for="color in colors" :key="color" :title="color" :style="{ 'background-color': color, 'height': `${ blockHeight }px`, 'width': `${ blockWidth }px`, 'margin': `${ blockMargin }px` }" @dblclick="removeColor(color)"></div>
                         </draggable>
                     </div>
@@ -113,7 +113,7 @@
                 <h1 class="ui header">已產生的圖片
                     <div class="sub header">右鍵下載</div>
                 </h1>
-                <div id="images"></div>
+                <div id="images" class="can-overflow"></div>
             </div>
         </div>
     </body>
