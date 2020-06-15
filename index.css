@@ -23,6 +23,10 @@
     overflow: hidden;
 }
 
+.color span {
+    font-size: 50%;
+}
+
 .can-overflow {
     overflow: visible;
 }

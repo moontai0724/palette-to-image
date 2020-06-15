@@ -8,12 +8,15 @@ function init() {
         data: {
             displaySettings: false,
             displayColors: true,
+            displayColorCode: true,
             displayBorder: true,
             blockWidth: 50,
             blockHeight: 50,
             blockMargin: 10,
             imageWidth: 600,
             imagePadding: 10,
+            fixedTextColor: false,
+            textColor: "#000000",
             colorFormatError: false,
             pickedColor: "",
             lastColor: "",
@@ -22,8 +25,7 @@ function init() {
                 ["#1B1412", "#2B1E1D", "#353020", "#454917", "#5B5C15", "#585338"],
                 ["#7B7A3B", "#656B47", "#63605F", "#6A766E", "#7C8563", "#998F70", "#95AC74", "#989F93", "#ABABA9", "#ADB88D", "#CDC485", "#C7A27D"],
                 ["#CCCEE0", "#C1C1C2", "#D6D4AE", "#D6DEED"]
-            ],
-            generatedImages: []
+            ]
         },
         methods: {
             AddColor: function () {
