@@ -21,6 +21,7 @@
 
 .color {
     overflow: hidden;
+    cursor: move;
 }
 
 .color span {

@@ -25,15 +25,16 @@
     <body>
         <div id="vue-content">
             <div class="ui center aligned segment">
-                <h1 class="ui header">色碼圖產生器
-                    <div class="sub header">輸入色碼，使用逗號分隔多個色碼，重複色碼不會重複加入，Enter 送出</div>
+                <h1 class="ui header">
+                    <span>色碼圖產生器</span>
+                    <div class="sub header">輸入色碼，使用井號分隔多個色碼，重複色碼不會重複加入，Enter 送出</div>
                 </h1>
 
                 <!-- Select colors -->
                 <div id="select-color" class="ui form">
                     <div class="ui fluid labeled action input field" :class="{ error: colorFormatError, shake: colorFormatError }">
                         <div class="ui label" :style="{ 'background-color': lastColor }" style="border: 0.5px solid gray;">#</div>
-                        <input type="text" placeholder="#FFFFFF,#000000" v-model="pickedColor" v-on:keyup.enter="AddColor">
+                        <input type="text" placeholder="#FFFFFF#000000#123#456" v-model="pickedColor" v-on:keyup.enter="AddColor" @click="initializeInput">
                         <div class="ui button" @click="AddColor">新增</div>
                     </div>
                     <div class="ui teal button" @click="generateImage">產生圖片</div>
@@ -44,7 +45,7 @@
 
             <!-- Settings -->
             <div class="ui segment" v-if="displaySettings">
-                <h1 class="ui center aligned header">設定</h1>
+                <h1 class="ui center aligned header"><span>設定</span></h1>
                 <div class="ui form">
                     <div class="three fields">
                         <div class="field">
@@ -114,7 +115,8 @@
 
             <!-- Display colors -->
             <div class="ui center aligned segment">
-                <div class="ui huge header" @click="displayColors = !displayColors;">已選取的顏色
+                <div class="ui huge header" @click="displayColors = !displayColors;" style="cursor: pointer;">
+                    <span>已選取的顏色</span>
                     <div class="sub header">透過拖曳的方式排列顏色，雙擊刪除<br>單點標題開合顏色排列區</div>
                 </div>
                 <span class="ui labeled icon button" @click="selectedColors.push([])"><i class="plus icon"></i>新增一列空行</span>
@@ -132,7 +134,8 @@
             </div>
 
             <div id="generated-images" class="ui center aligned segment">
-                <h1 class="ui header">已產生的圖片
+                <h1 class="ui header">
+                    <span>已產生的圖片</span>
                     <div class="sub header">右鍵下載</div>
                 </h1>
                 <div id="images" class="can-overflow">

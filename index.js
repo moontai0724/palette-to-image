@@ -28,9 +28,20 @@ function init() {
             ]
         },
         methods: {
+            initializeInput: function () {
+                if (this.pickedColor == "")
+                    this.pickedColor = "#";
+            },
             AddColor: function () {
                 if (this.colorFormatError == false) {
-                    this.selectedColors.push(sortColors(this.pickedColor.split(",").map(hexToRgb)).map(rgbToHex).filter((colorHex, index, arr) => !this.selectedColors.flat().includes(colorHex) && arr.indexOf(colorHex) == index));
+                    let colors = this.pickedColor.match(/#[0-9A-F]{0,6}/g);
+
+                    if (colors != null) {
+                        colors = colors.filter(colorHex => this.selectedColors.flat().includes(colorHex) === false);
+
+                        if (colors.length > 0)
+                            this.selectedColors.push(sortColors(colors.map(hexToRgb)).map(rgbToHex));
+                    }
                 }
             },
             removeColor: function (colorToRemove) {
@@ -39,6 +50,8 @@ function init() {
             },
             clearColor: function () {
                 this.selectedColors = [];
+                this.displayColors = true;
+                this.displaySettings = false;
             },
             removeEmpty: function () {
                 this.selectedColors = this.selectedColors.filter(arr => arr.length > 0);
@@ -57,21 +70,21 @@ function init() {
             }
         },
         watch: {
-            pickedColor: function () {
+            pickedColor: function (colors) {
                 this.colorFormatError = false;
-                this.pickedColor = this.pickedColor.toUpperCase();
-                this.pickedColor = this.pickedColor.replace(/#+/, "#").replace(/[^0-9A-F#,]/g, "").split(",").map((value, index, arr) => {
-                    if (!value.startsWith("#"))
-                        value = "#" + value;
-
-                    if (!isColor(value.toUpperCase()))
-                        this.colorFormatError = true;
-
-                    if (index == arr.length - 1)
-                        this.lastColor = value;
-
-                    return value;
-                }).join(",");
+                colors = colors.toUpperCase().match(/#[0-9A-F]{0,6}/g);
+                if (colors != null) {
+                    colors = colors.filter((color, index, arr) => {
+                        if (!isColor(color))
+                            this.colorFormatError = true;
+                        if (index == arr.length - 1)
+                            this.lastColor = color;
+                        return arr.indexOf(color) === index;
+                    });
+                    this.pickedColor = colors.join("");
+                } else {
+                    this.pickedColor = "";
+                }
             },
             colorFormatError: function () {
                 if (this.colorFormatError)
@@ -98,7 +111,7 @@ function hexToRgb(hex) {
 }
 
 function rgbToHex(rgb) {
-    return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
+    return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1).toUpperCase();
 }
 
 function colorDistance(color1, color2) {
